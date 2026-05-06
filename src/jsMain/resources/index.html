@@ -3,8 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <title>KMP with JS target example</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap">
   <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/pretty-print-json@3.0/dist/css/pretty-print-json.css>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      background: #f7f7f7;
+      color: #111;
+      display: flex;
+      justify-content: center;
+    }
+    #root {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      width: 100%;
+      max-width: 760px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .fields {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .fields input[type="number"] {
+      width: 56px;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .actions button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 10px;
+    }
     .piece {
       position: absolute;
       inset: 0;

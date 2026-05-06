@@ -44,34 +44,51 @@ fun main() {
             saveGameState(gameState)
         }
 
-        Div {
+        Div(attrs = {
+            attr("class", "app")
+        }) {
             H1 { Text("Connect Four") }
 
-            Div {
-                Label(forId = "rows") { Text("Rows") }
-                Input(InputType.Number) {
-                    id("rows")
-                    min("1")
-                    value(rowsInput)
-                    onInput { rowsInput = it.value?.toString() ?: "" }
+            Div(attrs = {
+                attr("class", "controls")
+            }) {
+                Div(attrs = {
+                    attr("class", "fields")
+                }) {
+                    Div(attrs = { attr("class", "field") }) {
+                        Label(forId = "rows") { Text("Rows") }
+                        Input(InputType.Number) {
+                            id("rows")
+                            min("1")
+                            value(rowsInput)
+                            onInput { rowsInput = it.value?.toString() ?: "" }
+                        }
+                    }
+
+                    Div(attrs = { attr("class", "field") }) {
+                        Label(forId = "cols") { Text("Cols") }
+                        Input(InputType.Number) {
+                            id("cols")
+                            min("1")
+                            value(colsInput)
+                            onInput { colsInput = it.value?.toString() ?: "" }
+                        }
+                    }
+
+                    Div(attrs = { attr("class", "field") }) {
+                        Label(forId = "connect") { Text("Connect") }
+                        Input(InputType.Number) {
+                            id("connect")
+                            min("1")
+                            value(connectInput)
+                            onInput { connectInput = it.value?.toString() ?: "" }
+                        }
+                    }
                 }
 
-                Label(forId = "cols") { Text("Cols") }
-                Input(InputType.Number) {
-                    id("cols")
-                    min("1")
-                    value(colsInput)
-                    onInput { colsInput = it.value?.toString() ?: "" }
-                }
-
-                Label(forId = "connect") { Text("Connect") }
-                Input(InputType.Number) {
-                    id("connect")
-                    min("1")
-                    value(connectInput)
-                    onInput { connectInput = it.value?.toString() ?: "" }
-                }
-
+                Div(attrs = {
+                    attr("class", "actions")
+                }) {
                 Button(attrs = {
                     type(ButtonType.Button)
                     onClick {
@@ -97,6 +114,7 @@ fun main() {
                     }
                 }) {
                     Text("New Game")
+                }
                 }
             }
 
