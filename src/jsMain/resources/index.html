@@ -85,15 +85,19 @@
       margin-top: 6px;
     }
     .board-wrap {
-      display: flex;
-      justify-content: center;
+      display: block;
+      width: 100%;
       max-width: 100%;
-      overflow-x: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
       padding-bottom: 6px;
     }
     .board {
-      transform: scale(var(--board-scale));
+      transform: none;
       transform-origin: top center;
+      width: max-content;
+      margin: 0 auto;
     }
     @media (max-width: 900px) {
       body { padding: clamp(14px, 2.6vw, 24px) 12px; }
