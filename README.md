@@ -31,6 +31,18 @@ Run the project from IntelliJ UI.
 
 <br>
 
+## Running Tests
+
+```bash
+./gradlew jsTest
+```
+
+>**Note:** Unit tests are not yet implemented.
+
+Or, from IntelliJ UI.
+
+<br>
+
 ## Based On
 
 Project scaffolded from the [Kotlin JS Wizard](https://github.com/Kotlin/kmp-js-wizard/) template.
