@@ -39,6 +39,7 @@ fun main() {
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var gameState by remember { mutableStateOf(initialState) }
         var lastMove by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+        var hoveredCol by remember { mutableStateOf<Int?>(null) }
 
         LaunchedEffect(gameState) {
             saveGameState(gameState)
@@ -94,6 +95,7 @@ fun main() {
                     onClick {
                         errorMessage = null
                         lastMove = null
+                        hoveredCol = null
                         gameState = newGame(gameState.config)
                     }
                 }) {
@@ -109,6 +111,7 @@ fun main() {
                             errorMessage = null
                             clearGameState()
                             lastMove = null
+                            hoveredCol = null
                             gameState = newGame(updated)
                         }
                     }
@@ -123,13 +126,21 @@ fun main() {
             }
 
             Div {
-                val statusText = when (val status = gameState.status) {
-                    is GameStatus.InProgress -> "In progress"
-                    is GameStatus.Draw -> "Draw"
-                    is GameStatus.Win -> "Winner: ${status.player}"
+                val currentColor = when (gameState.currentPlayer) {
+                    Player.Red -> "#e53935"
+                    Player.Yellow -> "#fbc02d"
                 }
-                P { Text("Status: $statusText") }
-                P { Text("Current player: ${gameState.currentPlayer}") }
+                P {
+                    Div(attrs = { attr("class", "current-player") }) {
+                        Text("Current player:")
+                        Div(attrs = {
+                            attr("class", "player-swatch")
+                            style {
+                                property("background-color", currentColor)
+                            }
+                        })
+                    }
+                }
             }
 
             Div(attrs = { attr("class", "board-wrap") }) {
@@ -151,6 +162,8 @@ fun main() {
                         val isLastMove = lastMove?.first == rowIndex && lastMove?.second == colIndex
                         val pieceClass = if (isLastMove && cell != Cell.Empty) "piece drop" else "piece"
                         val dropDistancePx = (rowIndex + 1) * (CellSizePx + CellGapPx)
+                        val isHoveredCol =
+                            hoveredCol == colIndex && gameState.status == GameStatus.InProgress
 
                             Div(attrs = {
                                 onClick {
@@ -168,12 +181,19 @@ fun main() {
                                         }
                                     }
                                 }
+                                onMouseEnter {
+                                    if (gameState.status == GameStatus.InProgress) {
+                                        hoveredCol = colIndex
+                                    }
+                                }
+                                onMouseLeave { hoveredCol = null }
                                 attr("data-row", rowIndex.toString())
                                 attr("data-col", colIndex.toString())
                                 style {
                                     property("width", "${CellSizePx}px")
                                     property("height", "${CellSizePx}px")
                                     property("border-radius", "${CellSizePx / 2}px")
+                                    property("background-color", if (isHoveredCol) "rgba(0, 0, 0, 0.06)" else "transparent")
                                     property("position", "relative")
                                     property("overflow", if (isLastMove && cell != Cell.Empty) "visible" else "hidden")
                                     property("cursor", if (gameState.status == GameStatus.InProgress) "pointer" else "default")
@@ -198,6 +218,40 @@ fun main() {
                         }
                     }
                 }
+            }
+
+            when (val status = gameState.status) {
+                is GameStatus.Win -> {
+                    val winnerColor = when (status.player) {
+                        Player.Red -> "#e53935"
+                        Player.Yellow -> "#fbc02d"
+                    }
+                    P {
+                        Div(attrs = { attr("class", "current-player") }) {
+                            Text("Winner:")
+                            Div(attrs = {
+                                attr("class", "player-swatch")
+                                style {
+                                    property("background-color", winnerColor)
+                                }
+                            })
+                        }
+                    }
+                }
+                is GameStatus.Draw -> {
+                    P {
+                        Div(attrs = { attr("class", "current-player") }) {
+                            Text("Draw")
+                            Div(attrs = {
+                                attr("class", "player-swatch")
+                                style {
+                                    property("background-color", "#9e9e9e")
+                                }
+                            })
+                        }
+                    }
+                }
+                is GameStatus.InProgress -> Unit
             }
         }
     }

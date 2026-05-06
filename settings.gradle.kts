@@ -11,4 +11,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kmp-js-wizard"
+rootProject.name = "connect-four"
