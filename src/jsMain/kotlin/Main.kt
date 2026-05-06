@@ -132,15 +132,17 @@ fun main() {
                 P { Text("Current player: ${gameState.currentPlayer}") }
             }
 
-            Div({
-                style {
-                    display(DisplayStyle.Grid)
-                    gridTemplateColumns("repeat(${gameState.config.cols}, ${CellSizePx}px)")
-                    gap(CellGapPx.px)
-                }
-            }) {
-                gameState.board.forEachIndexed { rowIndex, row ->
-                    row.forEachIndexed { colIndex, cell ->
+            Div(attrs = { attr("class", "board-wrap") }) {
+                Div(attrs = {
+                    attr("class", "board")
+                    style {
+                        display(DisplayStyle.Grid)
+                        gridTemplateColumns("repeat(${gameState.config.cols}, ${CellSizePx}px)")
+                        gap(CellGapPx.px)
+                    }
+                }) {
+                    gameState.board.forEachIndexed { rowIndex, row ->
+                        row.forEachIndexed { colIndex, cell ->
                         val fillColor = when (cell) {
                             Cell.Empty -> "transparent"
                             Cell.Red -> "#e53935"
@@ -150,48 +152,49 @@ fun main() {
                         val pieceClass = if (isLastMove && cell != Cell.Empty) "piece drop" else "piece"
                         val dropDistancePx = (rowIndex + 1) * (CellSizePx + CellGapPx)
 
-                        Div(attrs = {
-                            onClick {
-                                if (gameState.status == GameStatus.InProgress) {
-                                    val result = tryDropPiece(gameState, colIndex)
-                                    if (result.wasAccepted) {
-                                        gameState = result.state
-                                        val placedRow = result.placedRow
-                                        val placedCol = result.placedCol
-                                        lastMove = if (placedRow != null && placedCol != null) {
-                                            placedRow to placedCol
-                                        } else {
-                                            null
+                            Div(attrs = {
+                                onClick {
+                                    if (gameState.status == GameStatus.InProgress) {
+                                        val result = tryDropPiece(gameState, colIndex)
+                                        if (result.wasAccepted) {
+                                            gameState = result.state
+                                            val placedRow = result.placedRow
+                                            val placedCol = result.placedCol
+                                            lastMove = if (placedRow != null && placedCol != null) {
+                                                placedRow to placedCol
+                                            } else {
+                                                null
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            attr("data-row", rowIndex.toString())
-                            attr("data-col", colIndex.toString())
-                            style {
-                                property("width", "${CellSizePx}px")
-                                property("height", "${CellSizePx}px")
-                                property("border-radius", "${CellSizePx / 2}px")
-                                property("position", "relative")
-                                property("overflow", if (isLastMove && cell != Cell.Empty) "visible" else "hidden")
-                                property("cursor", if (gameState.status == GameStatus.InProgress) "pointer" else "default")
-                                if (isLastMove && cell != Cell.Empty) {
-                                    property("--drop-distance", "${dropDistancePx}px")
-                                    property("z-index", "2")
-                                }
-                            }
-                        }) {
-                            if (cell != Cell.Empty) {
-                                Div(attrs = {
-                                    attr("class", pieceClass)
-                                    style {
-                                        property("background-color", fillColor)
+                                attr("data-row", rowIndex.toString())
+                                attr("data-col", colIndex.toString())
+                                style {
+                                    property("width", "${CellSizePx}px")
+                                    property("height", "${CellSizePx}px")
+                                    property("border-radius", "${CellSizePx / 2}px")
+                                    property("position", "relative")
+                                    property("overflow", if (isLastMove && cell != Cell.Empty) "visible" else "hidden")
+                                    property("cursor", if (gameState.status == GameStatus.InProgress) "pointer" else "default")
+                                    if (isLastMove && cell != Cell.Empty) {
+                                        property("--drop-distance", "${dropDistancePx}px")
+                                        property("z-index", "2")
                                     }
+                                }
+                            }) {
+                                if (cell != Cell.Empty) {
+                                    Div(attrs = {
+                                        attr("class", pieceClass)
+                                        style {
+                                            property("background-color", fillColor)
+                                        }
+                                    })
+                                }
+                                Div(attrs = {
+                                    attr("class", "slot-border")
                                 })
                             }
-                            Div(attrs = {
-                                attr("class", "slot-border")
-                            })
                         }
                     }
                 }

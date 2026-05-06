@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>KMP with JS target example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect Four</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap">
@@ -13,12 +14,13 @@
     }
     body {
       margin: 0;
-      padding: 32px 16px;
+      padding: clamp(16px, 3vw, 32px) 16px;
       font-family: "Space Grotesk", "Segoe UI", sans-serif;
       background: #f7f7f7;
       color: #111;
       display: flex;
       justify-content: center;
+      overflow-x: hidden;
     }
     #root {
       width: 100%;
@@ -27,13 +29,20 @@
     }
     .app {
       width: 100%;
-      max-width: 760px;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    :root {
+      --board-scale: clamp(0.9, 0.85 + 0.5vw, 1.15);
     }
     .controls {
       display: flex;
       flex-wrap: nowrap;
       gap: 20px;
       align-items: center;
+      justify-content: center;
       margin-bottom: 16px;
     }
     .fields {
@@ -41,6 +50,7 @@
       gap: 14px;
       align-items: center;
       flex-wrap: wrap;
+      justify-content: center;
     }
     .field {
       display: flex;
@@ -56,11 +66,59 @@
     .actions {
       display: flex;
       gap: 10px;
+      justify-content: center;
     }
     .actions button {
       padding: 8px 12px;
       font-size: 14px;
       border-radius: 10px;
+    }
+    .board-wrap {
+      display: flex;
+      justify-content: center;
+      max-width: 100%;
+      overflow-x: hidden;
+      padding-bottom: 6px;
+    }
+    .board {
+      transform: scale(var(--board-scale));
+      transform-origin: top center;
+    }
+    @media (max-width: 900px) {
+      body { padding: clamp(14px, 2.6vw, 24px) 12px; }
+      .app { max-width: 100%; }
+      .board-wrap { max-width: 100%; }
+      :root { --board-scale: 1.0; }
+      .controls { gap: 16px; }
+    }
+    @media (max-width: 720px) {
+      .app { max-width: 100%; }
+      .board-wrap { max-width: 100%; }
+      :root { --board-scale: 0.98; }
+      .controls {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .actions {
+        width: 100%;
+      }
+    }
+    @media (max-width: 520px) {
+      .app { max-width: 100%; }
+      .board-wrap { max-width: 100%; }
+      :root { --board-scale: 0.9; }
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+      .fields {
+        width: 100%;
+        justify-content: center;
+      }
+      .actions {
+        width: 100%;
+        justify-content: center;
+      }
     }
     .piece {
       position: absolute;
