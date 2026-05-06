@@ -4,6 +4,25 @@
   <meta charset="UTF-8">
   <title>KMP with JS target example</title>
   <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/pretty-print-json@3.0/dist/css/pretty-print-json.css>
+  <style>
+    .piece {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+    }
+    .slot-border {
+      position: absolute;
+      inset: 0;
+      border: 1px solid #333;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .piece.drop { animation: drop 320ms cubic-bezier(0.35, 0.0, 0.65, 1); }
+    @keyframes drop {
+      from { transform: translateY(calc(var(--drop-distance, 16px) * -1)); }
+      to { transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 <div id="root"></div>

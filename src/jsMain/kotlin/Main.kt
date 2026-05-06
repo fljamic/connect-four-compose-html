@@ -1,4 +1,5 @@
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
@@ -24,15 +25,23 @@ import org.jetbrains.compose.web.renderComposable
 private const val DefaultRows = 6
 private const val DefaultCols = 7
 private const val DefaultConnect = 4
+private const val CellSizePx = 32
+private const val CellGapPx = 4
 
 fun main() {
     renderComposable(rootElementId = "root") {
-        var rowsInput by remember { mutableStateOf(DefaultRows.toString()) }
-        var colsInput by remember { mutableStateOf(DefaultCols.toString()) }
-        var connectInput by remember { mutableStateOf(DefaultConnect.toString()) }
+        val initialState = remember {
+            loadGameState() ?: newGame(GameConfig(DefaultRows, DefaultCols, DefaultConnect))
+        }
+        var rowsInput by remember { mutableStateOf(initialState.config.rows.toString()) }
+        var colsInput by remember { mutableStateOf(initialState.config.cols.toString()) }
+        var connectInput by remember { mutableStateOf(initialState.config.connect.toString()) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
-        var gameState by remember {
-            mutableStateOf(newGame(GameConfig(DefaultRows, DefaultCols, DefaultConnect)))
+        var gameState by remember { mutableStateOf(initialState) }
+        var lastMove by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+
+        LaunchedEffect(gameState) {
+            saveGameState(gameState)
         }
 
         Div {
@@ -66,25 +75,28 @@ fun main() {
                 Button(attrs = {
                     type(ButtonType.Button)
                     onClick {
+                        errorMessage = null
+                        lastMove = null
+                        gameState = newGame(gameState.config)
+                    }
+                }) {
+                    Text("Restart")
+                }
+                Button(attrs = {
+                    type(ButtonType.Button)
+                    onClick {
                         val updated = parseConfig(rowsInput, colsInput, connectInput)
                         if (updated == null) {
                             errorMessage = "Enter valid numbers for rows, cols, and connect."
                         } else {
                             errorMessage = null
+                            clearGameState()
+                            lastMove = null
                             gameState = newGame(updated)
                         }
                     }
                 }) {
-                    Text("Apply")
-                }
-                Button(attrs = {
-                    type(ButtonType.Button)
-                    onClick {
-                        errorMessage = null
-                        gameState = newGame(gameState.config)
-                    }
-                }) {
-                    Text("Reset")
+                    Text("New Game")
                 }
             }
 
@@ -105,17 +117,20 @@ fun main() {
             Div({
                 style {
                     display(DisplayStyle.Grid)
-                    gridTemplateColumns("repeat(${gameState.config.cols}, 32px)")
-                    gap(4.px)
+                    gridTemplateColumns("repeat(${gameState.config.cols}, ${CellSizePx}px)")
+                    gap(CellGapPx.px)
                 }
             }) {
                 gameState.board.forEachIndexed { rowIndex, row ->
                     row.forEachIndexed { colIndex, cell ->
                         val fillColor = when (cell) {
-                            Cell.Empty -> "#ffffff"
+                            Cell.Empty -> "transparent"
                             Cell.Red -> "#e53935"
                             Cell.Yellow -> "#fbc02d"
                         }
+                        val isLastMove = lastMove?.first == rowIndex && lastMove?.second == colIndex
+                        val pieceClass = if (isLastMove && cell != Cell.Empty) "piece drop" else "piece"
+                        val dropDistancePx = (rowIndex + 1) * (CellSizePx + CellGapPx)
 
                         Div(attrs = {
                             onClick {
@@ -123,20 +138,43 @@ fun main() {
                                     val result = tryDropPiece(gameState, colIndex)
                                     if (result.wasAccepted) {
                                         gameState = result.state
+                                        val placedRow = result.placedRow
+                                        val placedCol = result.placedCol
+                                        lastMove = if (placedRow != null && placedCol != null) {
+                                            placedRow to placedCol
+                                        } else {
+                                            null
+                                        }
                                     }
                                 }
                             }
                             attr("data-row", rowIndex.toString())
                             attr("data-col", colIndex.toString())
                             style {
-                                property("width", "32px")
-                                property("height", "32px")
-                                property("border", "1px solid #333")
-                                property("border-radius", "16px")
-                                property("background-color", fillColor)
+                                property("width", "${CellSizePx}px")
+                                property("height", "${CellSizePx}px")
+                                property("border-radius", "${CellSizePx / 2}px")
+                                property("position", "relative")
+                                property("overflow", if (isLastMove && cell != Cell.Empty) "visible" else "hidden")
                                 property("cursor", if (gameState.status == GameStatus.InProgress) "pointer" else "default")
+                                if (isLastMove && cell != Cell.Empty) {
+                                    property("--drop-distance", "${dropDistancePx}px")
+                                    property("z-index", "2")
+                                }
                             }
-                        })
+                        }) {
+                            if (cell != Cell.Empty) {
+                                Div(attrs = {
+                                    attr("class", pieceClass)
+                                    style {
+                                        property("background-color", fillColor)
+                                    }
+                                })
+                            }
+                            Div(attrs = {
+                                attr("class", "slot-border")
+                            })
+                        }
                     }
                 }
             }
