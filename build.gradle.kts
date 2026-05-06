@@ -36,7 +36,6 @@ kotlin {
             implementation(libs.kotlinx.browser)
             implementation(libs.compose.html.core)
             implementation(libs.compose.runtime)
-            implementation(npm("pretty-print-json", "3.0.5"))
         }
     }
 }
